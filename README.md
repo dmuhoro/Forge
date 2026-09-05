@@ -40,8 +40,11 @@ time · all main commits SSH-signed.
 ## Roadmap (sequential, honest)
 
 1. **Lift decision core** into this program (behaviour-identical; keep ShrinkMedia one source of
-   truth until then). 2. **Planner→Reviewer loop + evals + sandbox** (CLI-first). 3. **DataBank
-   RAG + ModelRouter transport** on owner hardware. 4. **Adapters** to each product.
+   truth until then).  
+2. **Planner→Reviewer loop + evals + sandbox** (CLI-first).  
+3. **DataBank
+   RAG + ModelRouter transport** on owner hardware.
+4. **Adapters** to each product.
 
 Estimated focused size: server/CLI + evals + sandbox, ~6–10k LOC plus ~2–4 wk for adapters.
 Full cross-repo estimates: `ShrinkMedia → docs/operations/ecosystem-roadmap.md`.
