@@ -1,8 +1,24 @@
 # Forge — the Orchestrator
 
-**Status: SCAFFOLD — the decision core is proven; the program is next.** Forge is "how the
-eco-system gets built and maintained": an orchestrator that plans, builds, reviews, and ships the
-ecosystem's products faster and **safer** under a governed loop — the codified SOP.
+**Status: STEP 1 SHIPPED — task schema + state machine, zero AI (`2026-09-05`).**
+Forge is "how the eco-system gets built and maintained": an orchestrator that plans, builds,
+reviews, and ships the ecosystem's products faster and **safer** under a governed loop — the
+codified SOP.
+
+## Present build phase (living record — updated on every directive, per build brief §9/README)
+
+- **Step 1 (DONE):** pure-stdlib task schema + deterministic state machine + append-only JSONL
+  journal + `forge-task` CLI. 16 tests, journal integrity verified, blocked surfaces with reason,
+  terminal states never resurrect. `forge/task.py`, `forge/engine.py`, `forge/journal.py`,
+  `forge/cli.py`. Evidence: `docs/evidence/2026-09-05_step1_state_machine.md`.
+- **Step 1 EXIT (DONE, 2026-09-05):** brief §9 required *"hand-run 5 real Daftari tasks"* — done with
+  the real Daftari v6.5.0 work items: all 5 walked to `merged`, blocked-requires-reason fired,
+  terminal states never resurrected, journal verified at 28 lines.
+  Evidence: `docs/evidence/2026-09-05_step1_exit_5_real_daftari_tasks.md`.
+- **Not started (honestly):** Builder / Reviewer wiring, RAG (pgvector), sandboxed Docker exec,
+  dashboard. Each later phase starts only when its §9 exit criterion is met. See `docs/kickoff.md`
+  for the dependency justifications. **Next: Step 2 — wire in Builder** (low-risk tasks only), gated
+  on step 1's exit (now met).
 
 ## What is already proven (lives in ShrinkMedia, one source of truth)
 

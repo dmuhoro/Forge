@@ -21,11 +21,11 @@ Run self-proof anywhere: `python3 -m unittest discover -s tests -v`.
 
 ## Dafari pilot & the "54 tests" claim
 
-Brief says step 1's exit is *"Hand-run 5 real Daftari tasks through it"*. Not done yet —
-**honest boundary**: step 1's exit is the owner's 5 real tasks, not our synthetic ones. The pilot
-repo (Daftari) needs its own green sprint first (v6.4.0 — see Daftari repo), and the claim
-"54 tests" there has to be verified against the real suite before we lean on it. We will not trust
-the number; we will count it.
+Brief says step 1's exit is *"Hand-run 5 real Daftari tasks through it"*. **DONE (2026-09-05):** 5
+real Daftari v6.5.0 work items walked to `merged`, blocked surfaced with reason, journal verified
+(`docs/evidence/2026-09-05_step1_exit_5_real_daftari_tasks.md`). The claim "54 tests" there had to
+be verified against the real suite before leaning on it — the real Daftari suite is **376 unit
+tests** (v6.5.0), and we counted it rather than trusting the number.
 
 ## Dependency justification (AGENTS §6 — why these when something else exists)
 
