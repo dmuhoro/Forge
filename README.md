@@ -1,6 +1,6 @@
 # Forge — the Orchestrator
 
-**Status: STEP 1 SHIPPED — task schema + state machine, zero AI (`2026-09-05`).**
+**Status: STEP 2 STARTED — Builder corpus shipped (pattern extraction + citation verification, still zero AI) (`2026-09-06`).**
 Forge is "how the eco-system gets built and maintained": an orchestrator that plans, builds,
 reviews, and ships the ecosystem's products faster and **safer** under a governed loop — the
 codified SOP.
@@ -15,10 +15,17 @@ codified SOP.
   the real Daftari v6.5.0 work items: all 5 walked to `merged`, blocked-requires-reason fired,
   terminal states never resurrected, journal verified at 28 lines.
   Evidence: `docs/evidence/2026-09-05_step1_exit_5_real_daftari_tasks.md`.
-- **Not started (honestly):** Builder / Reviewer wiring, RAG (pgvector), sandboxed Docker exec,
-  dashboard. Each later phase starts only when its §9 exit criterion is met. See `docs/kickoff.md`
-  for the dependency justifications. **Next: Step 2 — wire in Builder** (low-risk tasks only), gated
-  on step 1's exit (now met).
+- **Step 2 / Builder corpus (DONE, 2026-09-06):** the feeding base for the Builder role —
+  10 patterns extracted from the VERIFIED Daftari sprint-24 diffs (`4ea952c..36eaf82`) into
+  `docs/corpus/builder-corpus.json`, each citing the real `file:line` boundary it protects;
+  deterministic stdlib matcher (`forge/corpus.py`, fail-closed: no overlap => no guess) +
+  citation verifier + `forge corpus match|verify` CLI. **21 new tests (37 total) green**; all 14
+  corpus citations proven to exist at their cited lines against the Daftari checkout at
+  `36eaf823`. Evidence: `docs/evidence/2026-09-06_step2_builder_corpus.md`.
+- **Not started (honestly):** the Builder executor + Docker sandbox wiring, Planner→Reviewer loop,
+  evals, RAG/pgvector, dashboard. The Builder consumes the corpus BEFORE touching code, so its
+  first pass on low-risk tasks is grounded; the brief §9 step-2 exit ("5 clean diffs in a row
+  without hand-holding") is the next gate and needs the sandbox phase.
 
 ## What is already proven (lives in ShrinkMedia, one source of truth)
 

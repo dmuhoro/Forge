@@ -1,0 +1,206 @@
+{
+  "meta": {
+    "name": "Forge Builder corpus",
+    "extracted_from": "Daftari sprint-24 production-readiness sweeps (commits 4ea952c..36eaf82, dmuhoro/Daftari)",
+    "extracted_on": "2026-09-06",
+    "verified_against": "Daftari checkout at HEAD 36eaf8231c234a92124751c1a4770e9c980c3d4a",
+    "note": "Every boundary citation is a real file:line in that checkout, not a paraphrase. The Builder consumes this corpus BEFORE touching code so its first pass is grounded; the sandbox wiring + '5 clean diffs in a row' exit criterion of brief step 2 remain a separate phase."
+  },
+  "patterns": [
+    {
+      "id": "P-01",
+      "name": "adopt-before-load",
+      "trigger": "claim orphaned records, missing owner, user_id undefined, pre-login capture, adopt orphans, session boundary healing",
+      "source": "Daftari commit 4ea952c (+106f0fc)",
+      "boundary": [
+        "src/features/sync/adoptOrphans.ts:32",
+        "src/App.tsx:91"
+      ],
+      "recipe": [
+        "At the REAL auth boundary (a session just resolved), find every local record with no owner key.",
+        "Stamp the authenticated owner + mark the row unsynced so it re-enters the sync path.",
+        "Re-stamp any queued payloads for the same local ids so a pending flush does not dead-letter again.",
+        "Run BEFORE the tenant-scoped load so the claimed rows are visible to their new owner."
+      ],
+      "acceptance": [
+        "records previously invisible to tenant reads become visible and syncable",
+        "ownership is NEVER rewritten for a record that already carries any user_id",
+        "no session => early return, zero writes"
+      ],
+      "guardrail": "Fail closed and idempotent: an orphan is claimed exactly once; adoption never rewrites ownership away from another user. A failure is captured and logged, never silent."
+    },
+    {
+      "id": "P-02",
+      "name": "gate-the-shell-on-a-real-session",
+      "trigger": "signup no session, email confirmation pending, guard mount, session gate, null session, confirm email state",
+      "source": "Daftari commit 4ea952c",
+      "boundary": [
+        "src/screens/AuthScreen.tsx:34",
+        "src/App.tsx:57"
+      ],
+      "recipe": [
+        "Treat a successful SIGNUP without a returned session as UNRESOLVED, not success (email confirmation is pending).",
+        "Enter the shell only when a real session object exists; otherwise render an explicit confirm-your-email state with a resend action."
+        ],
+      "acceptance": [
+        "shell state derives from (!!session), never from the absence of an error",
+        "confirm-pending branch exists and offers resend with i18n coverage"
+      ],
+      "guardrail": "Fail closed: a null session never mounts tenant state, so records can never again be created under user_id undefined."
+    },
+    {
+      "id": "P-03",
+      "name": "realtime-live-update",
+      "trigger": "multi device live sync, postgres_changes, realtime delivery, subscription not delivered, realtime publication, live update ui",
+      "source": "Daftari commit 69bf17a + migration 9b41e21",
+      "boundary": [
+        "src/hooks/useRealtimeSync.ts:36",
+        "supabase/migrations/20260905210000_enable_realtime_tables.sql:17"
+      ],
+      "recipe": [
+        "Add an idempotent migration: alter publication supabase_realtime add table ... for each table you need live.",
+        "Subscribe to postgres_changes on the user's OWN rows only, with filter user_id=eq.<userId>; RLS additionally scopes the stream.",
+        "On each delta, apply it to the local store idempotently, then reload tenant state so the open UI updates without a manual pull or reload.",
+        "Remember: a channel reaching SUBSCRIBED does NOT prove delivery — publication membership is the actual gate."
+      ],
+      "acceptance": [
+        "live two-device simulation proves the event is DELIVERED (scripted probe), not merely subscribed",
+        "foreign rows never merge into the user's ledger"
+      ],
+      "guardrail": "Fail closed: client-side ownership assertion is a second line of defense on top of RLS. Cleanup removes the channel on unmount/offline."
+    },
+    {
+      "id": "P-04",
+      "name": "idempotent-local-apply-with-status",
+      "trigger": "apply remote change, upsert local, foreign row ignore, return code 0 1 2, idempotent application, delta apply observability",
+      "source": "Daftari commit 69bf17a",
+      "boundary": [
+        "src/lib/realtimeApply.ts:24"
+      ],
+      "recipe": [
+        "Shape the apply as a pure function returning a typed integer status: 0 applied, 1 ignored (foreign/absent), 2 failure.",
+        "Upsert/delete by the LOCAL stable id (local_id), never by server-only id.",
+        "Map every failure to a capture/error record; never throw into the render path."
+      ],
+      "acceptance": [
+        "tests assert all three return codes including the foreign-row ignore path",
+        "a repeated delta is a no-op-by-upsert (idempotent)"
+      ],
+      "guardrail": "No silent drops and no silent merges: a stranger's row is recorded as ignored, a failure is captured with context."
+    },
+    {
+      "id": "P-05",
+      "name": "single-shared-tenant-loader",
+      "trigger": "tenant load, duplicate resolution logic, two paths same state, loadTenantState, logic drift, shared loader",
+      "source": "Daftari commit 69bf17a",
+      "boundary": [
+        "src/lib/tenantLoader.ts:11"
+      ],
+      "recipe": [
+        "When two code paths must resolve the same tenant state (initial session load AND live-update reload), extract ONE loader both call.",
+        "The loader resolves businesses, transactions, the active business, and the per-user preference in one place."
+      ],
+      "acceptance": [
+        "initial load and realtime reload produce identical resolution for the same user",
+        "no second copy of the resolution logic exists"
+      ],
+      "guardrail": "Single source of truth: the same function is what both the realtime hook and the session effect execute, so behavior cannot drift."
+    },
+    {
+      "id": "P-06",
+      "name": "fail-closed-telemetry",
+      "trigger": "telemetry, analytics consent, opt in, share usage stats, privacy toggle, no network without consent, flush gate",
+      "source": "Daftari commit cea4153",
+      "boundary": [
+        "src/lib/analytics.ts:26",
+        "src/lib/store.ts:69"
+      ],
+      "recipe": [
+        "Hold consent in the app store as a boolean defaulting to false (OFF).",
+        "track() only writes the local log when consent is off — no buffering of non-opted-in telemetry.",
+        "flush() REFUSES to hit the network without consent and purges any un-consented backlog.",
+        "Surface the toggle in Settings with an on-device privacy statement."
+      ],
+      "acceptance": [
+        "no network call is ever attempted while consent is off",
+        "a flush requested before consent purges the backlog instead of sending",
+        "the toggle reflects the store default of false"
+      ],
+      "guardrail": "Fail closed: OFF by default; consent is required before ANY event leaves the device; a silent network attempt is a bug, not a default."
+    },
+    {
+      "id": "P-07",
+      "name": "unconfigured-builds-fail-closed",
+      "trigger": "vapid missing, external config absent, unconfigured status, capability status, broken prompt, push reminders disabled",
+      "source": "Daftari commit cea4153",
+      "boundary": [
+        "src/lib/pushNotifications.ts:14"
+      ],
+      "recipe": [
+        "A capability requiring external config (e.g. VAPID key) must report its build state: absent config => 'unconfigured'.",
+        "The Settings UI renders that status to the user instead of invoking a broken subscription flow or a missing-key error."
+      ],
+      "acceptance": [
+        "status returns 'unconfigured' when the key is absent",
+        "the UI shows the state rather than a dead control"
+      ],
+      "guardrail": "Fail closed: absence of configuration is surfaced as a status, never as a silent no-op or a thrown error the user cannot read."
+    },
+    {
+      "id": "P-08",
+      "name": "version-truth",
+      "trigger": "app version, stale version, version string, release monitoring, honest version footer, pin package json",
+      "source": "Daftari commit cea4153",
+      "boundary": [
+        "src/lib/constants.ts:8"
+      ],
+      "recipe": [
+        "Pin APP.VERSION in the single constants module to exactly package.json's version.",
+        "Display it in Settings so the running build's identity is visible and auditable.",
+        "Never hardcode a version string at the point of display."
+      ],
+      "acceptance": [
+        "APP.VERSION equals package.json version",
+        "the footer shows it and a test asserts the display"
+      ],
+      "guardrail": "Trust through honesty: monitoring and user support key off the real version; a drifted string is treated as a bug."
+    },
+    {
+      "id": "P-09",
+      "name": "proof-of-delivery-probe",
+      "trigger": "infra not live, publication not applied, smtp blocked, prove delivery, subscribe not delivered, exit code script probe, verify live",
+      "source": "Daftari commit a7476d9",
+      "boundary": [
+        "scripts/verify-realtime-live.ts:1"
+      ],
+      "recipe": [
+        "For infra claims that cannot be believed from config alone, write a scripted probe that exercises the REAL path.",
+        "Sign in with a real account, subscribe, perform a real mutation, and assert the event is DELIVERED.",
+        "Use distinct exit codes: 0 delivered, 1 config missing, 2 no delivery — so CI/operator can distinguish 'not run' from 'failed'."
+      ],
+      "acceptance": [
+        "the probe exits 2 when the infra is genuinely not live (e.g. publication missing)",
+        "it never reports success on a merely SUBSCRIBED channel"
+      ],
+      "guardrail": "Evidence over narrative: a claim like 'realtime works' requires delivery proof, not an optimistic subscription status."
+    },
+    {
+      "id": "P-10",
+      "name": "ci-collection-exclusion",
+      "trigger": "vitest collects playwright, ci failed collection, exclude e2e glob, mixed test harnesses, runner include pattern",
+      "source": "Daftari commit 36eaf82",
+      "boundary": [
+        "vitest.config.ts:1"
+      ],
+      "recipe": [
+        "When a runner's default include glob pulls in another harness's specs (e.g. vitest collecting Playwright .spec.ts), exclude those paths in the runner's config.",
+        "Keep both suites independent: each runs under its own runner; never delete or weaken either suite's assertions."
+      ],
+      "acceptance": [
+        "vitest collects zero Playwright specs",
+        "the Playwright suite still runs under its own runner and CI stays green"
+      ],
+      "guardrail": "Never weaken a test to pass a build: fix the collection boundary, not the assertions."
+    }
+  ]
+}

@@ -9,6 +9,7 @@ types and rules. Alignment: ShrinkMedia ADR-014 (ForgeTask semantics) + brief §
 from .task import Task, TaskInput, MAX_ATTEMPTS, Status, StatusRefusal
 from .engine import engine, valid_from, allowed_transitions
 from .journal import Journal
+from .corpus import REPO_ROOT, CorpusRefusal, load, match, validate, verify_citations
 
 __all__ = [
     "Task",
@@ -20,6 +21,12 @@ __all__ = [
     "valid_from",
     "allowed_transitions",
     "Journal",
+    "REPO_ROOT",
+    "CorpusRefusal",
+    "load",
+    "match",
+    "validate",
+    "verify_citations",
 ]
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"

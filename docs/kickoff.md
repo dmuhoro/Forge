@@ -1,6 +1,10 @@
-# Forge kickoff — step 1 shipped (task schema + state machine, zero AI)
+# Forge kickoff — step 1 shipped (task schema + state machine, zero AI); step 2 Builder corpus shipped
 
-Status: **Step 1 of the owner's build brief (2026-09-05) is implemented and tested.**
+Status: **Step 1 of the owner's build brief (2026-09-05) is implemented and tested** (16 tests, exit
+5-real-tasks met). **Step 2 has shipped its first half — the Builder corpus** (pattern extraction +
+citation verification, 2026-09-06, evidence
+`docs/evidence/2026-09-06_step2_builder_corpus.md`); the Builder executor + Docker sandbox and the
+"5 clean diffs in a row" exit criterion remain the next phase.
 Authoritative brief: `docs/owner-build-brief-2026-09-05.md` (preserved from the ShrinkMedia
 `Assets/` copy so Forge is self-contained). This doc proves the earlier decisions and why the
 steady full build is deferred, honestly.
