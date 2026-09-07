@@ -6,6 +6,35 @@ All notable changes to Forge are documented here, following
 proofs in `docs/evidence/`. The ecosystem's cross-repo record is a Citation at
 ShrinkMedia `docs/sprint-cross-reference.md` (documentation doctrine AGENTS.md §15).
 
+## [0.3.0] — 2026-09-07 — Step 3 (part 2): project + ecosystem dashboards
+
+### Added
+
+- **`forge dash project`** — task-journal board from the single source of truth
+  (`FORGE_JOURNAL`/`~/.forge/tasks.jsonl`): counts by every state, merged %,
+  **blocked-with-reason** (never resurrect; reason surfaced, not dropped), plus Builder corpus
+  patterns + citation proof-read coverage when `--repo-root` is given. Deterministic, stdlib,
+  no AI; corrupt journal or malformed corpus ⇒ `REFUSED` (fail-closed, no guessed rows).
+- **`forge dash ecosystem --roots A B C`** — cross-repo board read from each repo's **own
+  pristine `CHANGELOG.md`** (documentation doctrine): top release version + feature-section
+  names, git HEAD (`%G?` signature), and a **missing-CHANGELOG/missing-README lane** (doctrine
+  rule 5 — reported, never silently skipped).
+- **`--json`** on both commands for machine consumption.
+- **12 new tests** (`tests/test_dash.py`), incl. real subprocess boundary + real repo checkout
+  (HEAD short-sha + signed `G`); suite 37 → **49**.
+
+### Changed
+
+- `forge/__version__` 0.2.0 → 0.3.0.
+- `forge dash`/`forge corpus` dispatched from `python -m forge`.
+
+### Honest
+
+- No AI, no web UI: the boards are stdlib decision surfaces an operator reads; the dashboard
+  remains local + offline (consistent with the ecosystem's decision-only layer). "Ecosystem
+  dashboard" reads sibling repos only when given their local checkout paths — it is not a
+  network service.
+
 ## [0.2.0] — 2026-09-06 — Step 2 (part 1): Builder corpus shipped
 
 ### Added

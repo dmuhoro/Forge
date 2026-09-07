@@ -1,6 +1,6 @@
 # Forge — the Orchestrator
 
-**Status: STEP 2 STARTED — Builder corpus shipped (pattern extraction + citation verification, still zero AI) (`2026-09-06`).**
+**Status: STEP 2 STARTED + DASHBOARDS — Builder corpus shipped + project/ecosystem health boards (still zero AI) (`2026-09-07`).**
 Forge is "how the eco-system gets built and maintained": an orchestrator that plans, builds,
 reviews, and ships the ecosystem's products faster and **safer** under a governed loop — the
 codified SOP.
@@ -22,6 +22,11 @@ codified SOP.
   citation verifier + `forge corpus match|verify` CLI. **21 new tests (37 total) green**; all 14
   corpus citations proven to exist at their cited lines against the Daftari checkout at
   `36eaf823`. Evidence: `docs/evidence/2026-09-06_step2_builder_corpus.md`.
+- **Dashboards (DONE, 2026-09-07):** `forge dash project` (task-journal states + merged % +
+  blocked-with-reason + corpus coverage, `--json` for machines) and `forge dash ecosystem`
+  (per-repo board read from each repo's OWN pristine CHANGELOG, with a missing-CHANGELOG lane) —
+  stdlib, offline, fail-closed. **12 new tests (49 total) green**; real-repo proof in
+  `docs/evidence/2026-09-07_dashboards.md`.
 - **Not started (honestly):** the Builder executor + Docker sandbox wiring, Planner→Reviewer loop,
   evals, RAG/pgvector, dashboard. The Builder consumes the corpus BEFORE touching code, so its
   first pass on low-risk tasks is grounded; the brief §9 step-2 exit ("5 clean diffs in a row

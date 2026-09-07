@@ -6,10 +6,13 @@ Pure stdlib, no network, no AI — the agent roles plug in later against these s
 types and rules. Alignment: ShrinkMedia ADR-014 (ForgeTask semantics) + brief §2 schema.
 """
 
+__version__ = "0.3.0"
+
 from .task import Task, TaskInput, MAX_ATTEMPTS, Status, StatusRefusal
 from .engine import engine, valid_from, allowed_transitions
 from .journal import Journal
 from .corpus import REPO_ROOT, CorpusRefusal, load, match, validate, verify_citations
+from .dash import DashRefusal, ecosystem_board, project_board
 
 __all__ = [
     "Task",
@@ -27,6 +30,7 @@ __all__ = [
     "match",
     "validate",
     "verify_citations",
+    "DashRefusal",
+    "project_board",
+    "ecosystem_board",
 ]
-
-__version__ = "0.2.0"
