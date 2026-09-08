@@ -2,6 +2,7 @@ import sys
 from .cli import main as task_main
 from .corpus_cli import main as corpus_main
 from .dash_cli import main as dash_main
+from .serve import main as serve_main
 
 
 def main() -> None:
@@ -9,6 +10,8 @@ def main() -> None:
         sys.exit(corpus_main(sys.argv[2:]))
     if len(sys.argv) > 1 and sys.argv[1] == "dash":
         sys.exit(dash_main(sys.argv[2:]))
+    if len(sys.argv) > 1 and sys.argv[1] == "serve":
+        sys.exit(serve_main(sys.argv[2:]))
     sys.exit(task_main())
 
 

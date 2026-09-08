@@ -6,6 +6,42 @@ All notable changes to Forge are documented here, following
 proofs in `docs/evidence/`. The ecosystem's cross-repo record is a Citation at
 ShrinkMedia `docs/sprint-cross-reference.md` (documentation doctrine AGENTS.md §15).
 
+## [0.4.0] — 2026-09-08 — Step 3 (part 3): HTTP surface (browser access, L1)
+
+### Added
+
+- **`forge serve`** (`forge/serve.py`) — the two health boards over stdlib HTTP
+  (`ThreadingHTTPServer`, no new dependencies). Routes: `/` landing, `/project`
+  + `/ecosystem` (HTML), `/project.json` + `/ecosystem.json` (machine JSON),
+  `/healthz` (liveness, open). Offline, deterministic, no AI.
+- **Fail-closed by construction**: a server configured without `FORGE_TOKEN`
+  (or `--token`) **refuses to start**; a `0.0.0.0`/`::` broadcast bind is
+  refused (CLI binds loopback by default; a specific tailnet/interface address
+  must be passed explicitly). Every content route demands `Authorization:
+  Bearer <token>` compared with `hmac.compare_digest` (no timing oracle);
+  responses carry `Cache-Control: no-store`. A board that refuses to build →
+  HTTP 503 with the refusal text, never a guessed row.
+- **HTML renderers** `_html_project` / `_html_ecosystem` (XSS-escaped) wrapping
+  the existing boards; README-table equivalence to the Markdown/JSON faces.
+- **16 new tests** (`tests/test_serve.py`): live `ThreadingHTTPServer` on an
+  ephemeral socket asserting the real auth boundary (401 without/with wrong
+  token, 200 with token, 404 unknown route, 503 on corrupt journal), plus the
+  refuse-to-start construction rules via CLI subprocess; suite 49 → **65**.
+- **Real-repo smoke proof** (CLI, tailnet-ready): `/ecosystem.json` over HTTP
+  reported DataBank `8440958` G, Forge `6baf75a` G, ShrinkMedia `aaf9015` G.
+  See `docs/evidence/2026-09-08_forge_http_surface.md`.
+
+### Changed
+
+- `forge/__version__` 0.3.0 → 0.4.0.
+- `python -m forge serve` dispatched from `__main__` (alongside `corpus`, `dash`).
+
+### Honest
+
+- Bearer-token auth is the fail-closed seam for browser access; TLS sits in
+  front at the tailnet/VPS boundary, not inside Forge (consistent with dvault).
+- Explicitly **not** opened to `0.0.0.0` on purpose — no public ingress yet.
+
 ## [0.3.0] — 2026-09-07 — Step 3 (part 2): project + ecosystem dashboards
 
 ### Added

@@ -1,6 +1,7 @@
 # Forge — the Orchestrator
 
-**Status: STEP 2 STARTED + DASHBOARDS — Builder corpus shipped + project/ecosystem health boards (still zero AI) (`2026-09-07`).**
+**Status: STEP 2 STARTED + DASHBOARDS + HTTP SURFACE — Builder corpus shipped + project/ecosystem
+health boards, now reachable in the browser via `forge serve` (still zero AI) (`2026-09-08`).**
 Forge is "how the eco-system gets built and maintained": an orchestrator that plans, builds,
 reviews, and ships the ecosystem's products faster and **safer** under a governed loop — the
 codified SOP.
@@ -27,10 +28,17 @@ codified SOP.
   (per-repo board read from each repo's OWN pristine CHANGELOG, with a missing-CHANGELOG lane) —
   stdlib, offline, fail-closed. **12 new tests (49 total) green**; real-repo proof in
   `docs/evidence/2026-09-07_dashboards.md`.
+- **HTTP surface (DONE, 2026-09-08):** `forge serve` — both boards over stdlib HTTP (HTML + JSON),
+  bearer-token-gated with `hmac.compare_digest`, **fails closed on start** without `FORGE_TOKEN`
+  and refuses `0.0.0.0` binds (tailnet exposure is an explicit bind); `Cache-Control: no-store`,
+  corrupt journal ⇒ 503. **16 new tests (65 total) green**; real-repo HTTP smoke proof in
+  `docs/evidence/2026-09-08_forge_http_surface.md`. This is the browser/phone surface the
+  ecosystem dashboard directive (L1) asked for.
 - **Not started (honestly):** the Builder executor + Docker sandbox wiring, Planner→Reviewer loop,
-  evals, RAG/pgvector, dashboard. The Builder consumes the corpus BEFORE touching code, so its
-  first pass on low-risk tasks is grounded; the brief §9 step-2 exit ("5 clean diffs in a row
-  without hand-holding") is the next gate and needs the sandbox phase.
+  evals, RAG/pgvector. (The HTTP surface now ships the boards; the Builder executor and the agent
+  loop itself are still the next gate and need the sandbox phase.) The Builder consumes the corpus
+  BEFORE touching code, so its first pass on low-risk tasks is grounded; the brief §9 step-2 exit
+  ("5 clean diffs in a row without hand-holding") is the next gate and needs the sandbox phase.
 
 ## What is already proven (lives in ShrinkMedia, one source of truth)
 
