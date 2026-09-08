@@ -1,7 +1,8 @@
 # Forge — the Orchestrator
 
-**Status: STEP 2 STARTED + DASHBOARDS + HTTP SURFACE — Builder corpus shipped + project/ecosystem
-health boards, now reachable in the browser via `forge serve` (still zero AI) (`2026-09-08`).**
+**Status: STEP 2 STARTED + DASHBOARDS + HTTP SURFACE + ECOSYSTEM HUB — Builder corpus shipped +
+project/ecosystem health boards + ecosystem hub, now reachable in the browser via `forge serve`
+(still zero AI) (`2026-09-08`).**
 Forge is "how the eco-system gets built and maintained": an orchestrator that plans, builds,
 reviews, and ships the ecosystem's products faster and **safer** under a governed loop — the
 codified SOP.
@@ -34,6 +35,11 @@ codified SOP.
   corrupt journal ⇒ 503. **16 new tests (65 total) green**; real-repo HTTP smoke proof in
   `docs/evidence/2026-09-08_forge_http_surface.md`. This is the browser/phone surface the
   ecosystem dashboard directive (L1) asked for.
+- **Ecosystem hub (DONE, 2026-09-08):** the `forge serve` landing now is `GET /` (alias `/hub`) —
+  Services panel (DataBank vault live probe + hosted Daftari), Repos panel (all ecosystem repos,
+  signed `G` heads), boards + plumbing links; `/board/vault` 302s to the DataBank dashboard.
+  Server-side vault probe classifies reachable-ok / reachable-but-refused (auth gate) / unreachable
+  and surfaces the reason — no silent drop (ADR-020). **6 new tests (71 total) green**.
 - **Not started (honestly):** the Builder executor + Docker sandbox wiring, Planner→Reviewer loop,
   evals, RAG/pgvector. (The HTTP surface now ships the boards; the Builder executor and the agent
   loop itself are still the next gate and need the sandbox phase.) The Builder consumes the corpus

@@ -13,13 +13,22 @@ import sys
 import tempfile
 import threading
 import unittest
+import urllib.request
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 from forge import __version__
 from forge.engine import engine
 from forge.journal import Journal
-from forge.serve import ServeRefusal, ForgeHandler, _html_ecosystem, _html_project, serve
+from forge.serve import (
+    ServeRefusal,
+    ForgeHandler,
+    _html_ecosystem,
+    _html_hub,
+    _html_project,
+    probe_vault,
+    serve,
+)
 from forge.task import Status, Task, TaskInput
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -147,6 +156,78 @@ class ServeHttpTest(unittest.TestCase):
     def test_html_renderers_exist(self) -> None:
         self.assertTrue(callable(_html_project))
         self.assertTrue(callable(_html_ecosystem))
+
+    def test_hub_landing_renders_services_and_repos(self) -> None:
+        with self._get("/", self.token) as r:
+            self.assertEqual(200, r.status)
+            body = r.read().decode("utf-8")
+        self.assertIn("ShrinkMedia Ecosystem Hub", body)
+        self.assertIn("DataBank vault", body)
+        self.assertIn("Daftari", body)
+        self.assertIn(os.path.basename(REPO), body)
+        self.assertIn("repos", body.lower())
+
+    def test_hub_alias_and_vault_redirect(self) -> None:
+        with self._get("/hub", self.token) as r:
+            self.assertEqual(200, r.status)
+            self.assertIn("Ecosystem Hub", r.read().decode("utf-8"))
+        # Do NOT follow the 302: assert the redirect target itself.
+        class _NoRedirect(urllib.request.HTTPRedirectHandler):  # type: ignore
+            def http_error_302(self, req, fp, code, msg, headers):  # noqa: N802
+                fp.close()
+                raise HTTPError(req.full_url, code, msg, headers, fp)
+        opener = urllib.request.build_opener(_NoRedirect)
+        req = Request(self._url("/board/vault"))
+        req.add_header("Authorization", f"Bearer {self.token}")
+        with self.assertRaises(HTTPError) as ctx:
+            opener.open(req, timeout=10)
+        self.assertEqual(302, ctx.exception.code)
+        self.assertTrue(ctx.exception.headers["Location"].endswith("/ui"))
+
+    def test_hub_probe_surfaces_errors_not_silent(self) -> None:
+        # No vault listening on the ephemeral port -> probe must surface
+        # "unreachable" in HTML, never a silent blank.
+        with self._get("/", self.token) as r:
+            body = r.read().decode("utf-8")
+        self.assertIn("unreachable", body)
+
+    def test_probe_vault_reports_unreachable_without_raising(self) -> None:
+        report = probe_vault("http://127.0.0.1:1")
+        self.assertIs(False, report["reachable"])
+        self.assertIs(False, report["ok"])
+        self.assertIn("error", report)
+        self.assertEqual("unreachable", report["status"])
+
+    def test_probe_vault_reports_auth_required_as_reachable(self) -> None:
+        # DataBank puts /healthz behind the bearer gate (ADR-017). A local
+        # 401-returning server must classify as reachable-but-refused (not
+        # unreachable). Hermetic — no live host.
+        from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+        class _Gate(BaseHTTPRequestHandler):
+            def do_GET(self) -> None:  # noqa: N802
+                self.send_response(401)
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+
+        srv = ThreadingHTTPServer(("127.0.0.1", 0), _Gate)
+        srv.daemon_threads = True
+        th = threading.Thread(target=srv.serve_forever, daemon=True)
+        th.start()
+        try:
+            report = probe_vault("http://127.0.0.1:%d" % srv.server_address[1])
+        finally:
+            srv.shutdown()
+            srv.server_close()
+        self.assertIs(True, report["reachable"])
+        self.assertIs(False, report["ok"])
+        self.assertEqual("http 401", report["status"])
+
+    def test_hub_json_version_floor(self) -> None:
+        with self._get("/", self.token) as r:
+            body = r.read().decode("utf-8")
+        self.assertGreaterEqual(tuple(int(x) for x in __version__.split(".")), (0, 3, 0))
+        self.assertTrue(callable(_html_hub))
 
 
 class ServeCliTest(unittest.TestCase):

@@ -6,6 +6,39 @@ All notable changes to Forge are documented here, following
 proofs in `docs/evidence/`. The ecosystem's cross-repo record is a Citation at
 ShrinkMedia `docs/sprint-cross-reference.md` (documentation doctrine AGENTS.md §15).
 
+## [0.5.0] — 2026-09-08 — Step 3 (part 4): ecosystem hub (L3)
+
+### Added
+
+- **Ecosystem hub on the landing route** (`/` + `/hub` alias): one address for the
+  whole corridor — renders the Services panel (DataBank vault + hosted Daftari) and
+  the Repos panel (all ecosystem repos, signed `G` heads, version, problems), plus
+  boards and plumbing links. Aligns with ShrinkMedia **ADR-020** (browser surface).
+- **Server-side vault live probe** (`probe_vault`): hits `<vault_base>/healthz`
+  with a 3 s timeout and classifies **reachable-ok / reachable-but-refused
+  (auth gate) / unreachable**, surfacing reason text in the hub — no silent drop.
+  The common fail-closed case (DataBank `ADR-017` puts `/healthz` behind the
+  bearer gate) renders as *reachable, but /healthz refused* — never "down".
+- **`/board/vault`** — 302 to `<vault_base>/ui` (the DataBank dashboard), so the
+  hub needs no vault credentials and the browser lands on the correct origin.
+- **Config**: `--vault-base` / `FORGE_VAULT_BASE` (default `http://127.0.0.1:8787`)
+  and `--daftari-url` / `FORGE_DAFTARI_URL` (default `https://daftari-amber.vercel.app`).
+- **6 new tests** (`tests/test_serve.py`): hub landing renders all panels, `/hub`
+  alias, `/board/vault` redirect (asserted without following), unreachable probe
+  surfaced in HTML, hermetic reachable-but-auth probe, probe never raises even on
+  dead ports; suite 65 → **71**.
+
+### Changed
+
+- `forge/__version__` 0.4.0 → 0.5.0.
+- `GET /` is now the hub (was a two-link landing).
+
+### Honest
+
+- The hub *probes* the vault but does not *read* it: reading still needs the
+  dvault bearer token, which stays with the browser/extension (ADR-019 §3).
+- Probe is server-side by design — the hub page itself has no vault credentials.
+
 ## [0.4.0] — 2026-09-08 — Step 3 (part 3): HTTP surface (browser access, L1)
 
 ### Added
