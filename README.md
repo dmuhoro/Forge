@@ -40,6 +40,11 @@ codified SOP.
   signed `G` heads), boards + plumbing links; `/board/vault` 302s to the DataBank dashboard.
   Server-side vault probe classifies reachable-ok / reachable-but-refused (auth gate) / unreachable
   and surfaces the reason — no silent drop (ADR-020). **6 new tests (71 total) green**.
+- **Forge-driven Daftari diffs (DONE, 2026-09-08):** two real, shipped Daftari fixes driven through
+  the task journal to `merged` — `parseKESInput` money fail-open (`f64acc5` G, suite 399→402) and
+  the `check-i18n` DYNAMIC_KEYS whitelist drift (`0af9d0f` G, fail-closed on missing key).
+  Each committed individually, SSH-signed, pushed, CHANGELOG'd in Daftari (own-it-first).
+  Evidence: `docs/evidence/2026-09-08_L4_forge_driven_daftari_diffs.md`.
 - **Not started (honestly):** the Builder executor + Docker sandbox wiring, Planner→Reviewer loop,
   evals, RAG/pgvector. (The HTTP surface now ships the boards; the Builder executor and the agent
   loop itself are still the next gate and need the sandbox phase.) The Builder consumes the corpus
