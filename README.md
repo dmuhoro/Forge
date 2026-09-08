@@ -45,6 +45,13 @@ codified SOP.
   the `check-i18n` DYNAMIC_KEYS whitelist drift (`0af9d0f` G, fail-closed on missing key).
   Each committed individually, SSH-signed, pushed, CHANGELOG'd in Daftari (own-it-first).
   Evidence: `docs/evidence/2026-09-08_L4_forge_driven_daftari_diffs.md`.
+- **Disposable MV3 browser extension (DONE, 2026-09-08):** `extension/` — opens the bearer-gated
+  DataBank dashboard (`/ui`) in a plain browser via a `declarativeNetRequest` `modifyHeaders` rule;
+  token is RAM-only (worker memory), never touches storage, and is erased on worker kill/clear.
+  Host-scoped and URL-anchored so lookalike hosts never get the header. 6 extension tests green
+  incl. the zero-residue guard; live proof vs a real bearer-gated vault: no-token `/healthz` → 401,
+  header-as-armed → `/ui` 200. Chrome load is a manual Owner step. Evidence:
+  `docs/evidence/2026-09-08_L5_disposable_extension.md`.
 - **Not started (honestly):** the Builder executor + Docker sandbox wiring, Planner→Reviewer loop,
   evals, RAG/pgvector. (The HTTP surface now ships the boards; the Builder executor and the agent
   loop itself are still the next gate and need the sandbox phase.) The Builder consumes the corpus

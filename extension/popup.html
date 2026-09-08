@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Forge Corridor</title>
+    <style>
+      :root { color-scheme: light dark; }
+      body { font: 13px/1.4 system-ui, sans-serif; width: 300px; margin: 0; padding: 12px; }
+      h1 { font-size: 14px; margin: 0 0 8px; }
+      label { display: block; margin: 8px 0 2px; font-weight: 600; }
+      input { width: 100%; box-sizing: border-box; padding: 6px; }
+      .row { display: flex; gap: 8px; margin-top: 10px; }
+      button { flex: 1; padding: 6px; cursor: pointer; }
+      #status { margin-top: 8px; min-height: 1em; color: #666; }
+      #status.err { color: #b00020; }
+      .note { margin-top: 8px; color: #888; }
+    </style>
+  </head>
+  <body>
+    <h1>Forge Corridor — vault dashboard</h1>
+    <label for="host">Vault host (allow-listed only)</label>
+    <input id="host" value="100.126.191.52:8787" spellcheck="false" autocomplete="off" />
+    <label for="token">Bearer token (RAM only — never stored)</label>
+    <input id="token" type="password" autocomplete="off" spellcheck="false" placeholder="paste DVLT_TOKEN" />
+    <div class="row">
+      <button id="open">Open /ui</button>
+      <button id="clear">Clear token</button>
+    </div>
+    <div id="status"></div>
+    <div class="note">Token lives in the service worker memory only. Closing or reloading the
+      browser discards it (and cold-reloads never re-arm a stale header). No chrome.storage, no
+      cookies, no localStorage.</div>
+    <script src="popup.js"></script>
+  </body>
+</html>

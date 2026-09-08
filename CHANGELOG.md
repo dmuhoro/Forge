@@ -6,6 +6,29 @@ All notable changes to Forge are documented here, following
 proofs in `docs/evidence/`. The ecosystem's cross-repo record is a Citation at
 ShrinkMedia `docs/sprint-cross-reference.md` (documentation doctrine AGENTS.md §15).
 
+## [Unreleased] — 0.6.0 — Step 3: corridor browser (L5)
+
+### Added
+
+- **Disposable MV3 browser extension** (`extension/`) — the corridor browser
+  surface: opens the bearer-gated DataBank dashboard (`{vault_base}/ui`,
+  ADR-017) in a plain browser by arming a `declarativeNetRequest` `modifyHeaders`
+  rule, so the token is applied at the same request boundary the server
+  enforces. **Token is RAM-only** — nothing reaches `chrome.storage`,
+  `localStorage`, `sessionStorage`, or `document.cookie`; the worker being killed
+  (or *Clear token*) erases it. Host scoping is enforced in code
+  (`ALLOWED_HOSTS` ∩ `host_permissions`) and the DNR filter is URL-anchored
+  (`|*://{host}/*`), so lookalike hosts can never receive the header.
+- **6 extension tests** (`extension/tests/buildRules.test.mjs`, `node --test`):
+  pure `buildRules` unit tests incl. a **zero-residue guard** that greps every
+  JS file for storage/cookie *invocations* and fails otherwise; fail-closed
+  refusals for empty token / out-of-list host; token appears exactly once in rule
+  JSON; MV3 manifest bounded to corridor hosts.
+- README + evidence: `docs/evidence/2026-09-08_L5_disposable_extension.md`
+  (rule unit tests green 6/6; live proof vs a throwaway real bearer-gated vault:
+  no-token `/healthz` → 401, header as the rule emits → `/ui` 200; Chrome load is
+  a manual Owner step — no browser in this env).
+
 ## [0.5.0] — 2026-09-08 — Step 3 (part 4): ecosystem hub (L3)
 
 ### Added

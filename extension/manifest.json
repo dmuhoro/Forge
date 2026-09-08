@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Forge Corridor Browser",
+  "version": "0.1.0",
+  "description": "Disposable browser surface for the ecosystem corridor: opens the Daftari /ui dashboard with the bearer token held in RAM only. Zero residue by design — no storage, no persistence.",
+  "permissions": ["declarativeNetRequest", "activeTab"],
+  "host_permissions": [
+    "http://100.126.191.52:8787/*",
+    "https://100.126.191.52:8787/*",
+    "http://127.0.0.1:8787/*",
+    "https://127.0.0.1:8787/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "minimum_chrome_version": "120"
+}
